@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article App</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="preload" as="style" href="./build/assets/app-Csln_23b.css" /><link rel="modulepreload" href="./build/assets/app-ajUnSpVR.js" /><link rel="stylesheet" href="./build/assets/app-Csln_23b.css" /><script type="module" src="./build/assets/app-ajUnSpVR.js"></script>    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Topbar Navigation -->
+    <nav id="static-navbar" class="bg-[#1e293b] text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Logo & Menu -->
+                <div class="flex items-center gap-8">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <div class="text-indigo-400">
+                            <!-- Custom Wave Logo SVG -->
+                            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 4.5C8 4.5 5 7.5 5 11c0 2 1.5 3.5 3.5 3.5 1.5 0 2.5-1 3.5-2.5 1-1.5 2-2.5 3.5-2.5 2 0 3.5 1.5 3.5 3.5 0 3.5-3 6.5-7 6.5-4 0-7-3-7-6.5h2c0 2.5 2.5 4.5 5 4.5 3 0 5-2 5-4.5 0-1-.5-1.5-1.5-1.5-1.5 0-2.5 1-3.5 2.5-1 1.5-2 2.5-3.5 2.5C6 16.5 3 14 3 11c0-4.5 4-8.5 9-8.5 4.5 0 8.5 4 8.5 8.5h-2c0-3.5-2.5-6.5-6.5-6.5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:block">
+                        <div class="flex items-baseline space-x-1">
+                            <a href="./dashboard.html" class="px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Blog</a>
+                            <a href="./drafts.html" class="px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Drafts</a>
+                                                            <a href="./users/index.html" class="px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Users</a>
+                                                        <a href="./about.html" class="px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">About</a>
+                            <a href="./contact.html" class="px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Contact</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Profile & Logout -->
+                <div class="hidden md:flex items-center gap-4">
+                                            <div class="flex items-center gap-3">
+                            <a href="./profile.html" class="text-sm text-slate-300 hover:text-white transition-colors">Admin</a>
+                                                            <img class="h-9 w-9 rounded-full object-cover ring-2 ring-slate-700" src="./storage/avatars/bncpniaO2ABvWUmDBllsChzQG07bt1PVENtEEcjT.png" alt="User Avatar">
+                                                    </div>
+                        <form action="logout" method="POST" class="m-0">
+                            <input type="hidden" name="_token" value="" autocomplete="off">                            <button type="submit" class="px-3 py-1.5 text-sm font-medium text-white bg-red-500/20 hover:bg-red-500/40 rounded border border-red-500/30 transition-colors">
+                                Logout
+                            </button>
+                        </form>
+                                    </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sub-header Banner (White) -->
+            <div class="bg-white border-b border-slate-200 shadow-sm py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Blog</h1>
+    <a href="./articles/create.html" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Create Article
+    </a>
+</div>
+            </div>
+        </div>
+    
+    <!-- Flash Messages -->
+        
+    <!-- CONTENT -->
+    <main class="flex-1 w-full flex flex-col">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+    
+    <!-- Search Bar -->
+    <div class="flex justify-center mb-12">
+        <form action="/" method="GET" class="w-full max-w-4xl flex flex-col sm:flex-row items-stretch sm:items-center shadow-sm rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all">
+            
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="search" value="" class="w-full pl-12 pr-4 py-3.5 text-base text-slate-700 bg-transparent border-none focus:ring-0 placeholder:text-slate-400" placeholder="Search for article...">
+            </div>
+
+                            <div class="h-px sm:h-8 w-full sm:w-px bg-slate-200"></div>
+
+                <select name="author" class="px-4 py-3.5 text-slate-600 bg-transparent border-none focus:ring-0 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_0.5rem_center] pr-10 cursor-pointer outline-none">
+                    <option value="">All Author</option>
+                                            <option value="1" >
+                            Admin
+                        </option>
+                                            <option value="2" >
+                            galih permana
+                        </option>
+                                            <option value="5" >
+                            user
+                        </option>
+                                            <option value="7" >
+                            Test Admin
+                        </option>
+                                    </select>
+            
+            <div class="h-px sm:h-8 w-full sm:w-px bg-slate-200"></div>
+
+            <select name="sort" class="px-4 py-3.5 text-slate-600 bg-transparent border-none focus:ring-0 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_0.5rem_center] pr-10 cursor-pointer outline-none">
+                <option value="latest_created" >Terbaru</option>
+                <option value="latest_updated" >Terbarukan</option>
+                <option value="title_asc" >Judul A-Z</option>
+                <option value="title_desc" >Judul Z-A</option>
+            </select>
+
+            <button type="submit" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors sm:rounded-r-xl sm:rounded-l-none">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Pagination Info Top -->
+    <div class="flex flex-col sm:flex-row items-center justify-between mb-6">
+        <div class="text-slate-500 mb-4 sm:mb-0">
+                            Showing <strong>1</strong> to <strong>2</strong> of <strong>2</strong> results
+                    </div>
+        
+        <div>
+            
+        </div>
+    </div>
+
+    <!-- Articles Grid -->
+    <div id="static-articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative group">
+                
+                <!-- Admin Actions (Edit/Delete) - visible on hover for CRUD functionality -->
+                                <div class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <a href="./articles/edit.html?id=1" class="p-1.5 bg-yellow-50 text-yellow-500 rounded-md hover:bg-yellow-500 hover:text-white transition-colors" title="Edit">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </a>
+                    <form action="articles/edit?id=1" method="POST" onsubmit="return confirm('Delete this article?')" class="inline">
+                        <input type="hidden" name="_token" value="" autocomplete="off">                        <input type="hidden" name="_method" value="DELETE">                        <button type="submit" class="p-1.5 bg-red-50 text-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors" title="Delete">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Category & Time -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex gap-2">
+                                                    <span class="bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-200">
+                                Published
+                            </span>
+                                            </div>
+                    <span class="text-sm text-slate-500">
+                        4 hours ago
+                    </span>
+                </div>
+
+                <!-- Title -->
+                <h2 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2 leading-snug">
+                    artikel 1
+                </h2>
+
+                <!-- Excerpt -->
+                <p class="text-slate-500 mb-6 line-clamp-3 text-sm leading-relaxed flex-1">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at nibh id lorem scelerisque dictum a at leo. Nulla facil...
+                </p>
+
+                <!-- Footer: Author & Read More -->
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 gap-2">
+                    <div class="flex items-center gap-3 min-w-0">
+                                                    <img src="./storage/avatars/bncpniaO2ABvWUmDBllsChzQG07bt1PVENtEEcjT.png" alt="Admin" class="w-8 h-8 rounded-full object-cover shadow-sm shrink-0">
+                                                <span class="text-sm font-medium text-slate-700 truncate">Admin</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 shrink-0">
+                                                <a href="./articles/show.html?id=1" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 group/link">
+                            Read
+                            <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative group">
+                
+                <!-- Admin Actions (Edit/Delete) - visible on hover for CRUD functionality -->
+                                <div class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <a href="./articles/edit.html?id=3" class="p-1.5 bg-yellow-50 text-yellow-500 rounded-md hover:bg-yellow-500 hover:text-white transition-colors" title="Edit">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </a>
+                    <form action="articles/edit?id=3" method="POST" onsubmit="return confirm('Delete this article?')" class="inline">
+                        <input type="hidden" name="_token" value="" autocomplete="off">                        <input type="hidden" name="_method" value="DELETE">                        <button type="submit" class="p-1.5 bg-red-50 text-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors" title="Delete">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Category & Time -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex gap-2">
+                                                    <span class="bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-200">
+                                Published
+                            </span>
+                                            </div>
+                    <span class="text-sm text-slate-500">
+                        5 hours ago
+                    </span>
+                </div>
+
+                <!-- Title -->
+                <h2 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2 leading-snug">
+                    lorem ipsum
+                </h2>
+
+                <!-- Excerpt -->
+                <p class="text-slate-500 mb-6 line-clamp-3 text-sm leading-relaxed flex-1">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at nibh id lorem scelerisque dictum a at leo. Nulla facil...
+                </p>
+
+                <!-- Footer: Author & Read More -->
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 gap-2">
+                    <div class="flex items-center gap-3 min-w-0">
+                                                    <img src="./storage/avatars/UKBnUNRe29PDQTalqvbFWgA4o6ecH9pGGFsSHtJJ.png" alt="galih permana" class="w-8 h-8 rounded-full object-cover shadow-sm shrink-0">
+                                                <span class="text-sm font-medium text-slate-700 truncate">galih permana</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 shrink-0">
+                                                <a href="./articles/show.html?id=3" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 group/link">
+                            Read
+                            <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+    <!-- Pagination Info Bottom -->
+    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 mt-12 bg-white border-t border-slate-200">
+        <div class="px-6 mx-auto max-w-7xl">
+            <p class="text-sm text-center text-slate-500">
+                &copy; 2026 Article App. Built with Laravel & Tailwind CSS.
+            </p>
+        </div>
+    </footer>
+
+<script>
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (!input || !icon) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+<script src="./static-app.js"></script>
+</body>
+</html>
