@@ -73,7 +73,7 @@
         if (href.includes('/profile.html')) return 'profile';
         if (href.includes('/login.html')) return 'login';
         if (href.includes('/register.html')) return 'register';
-        if (href.endsWith('/index.html') || href.endsWith('/article-management/') || href.endsWith('/')) return 'welcome';
+        if (href.endsWith('/index.html') || href.endsWith('/article-management/') || href.endsWith('/')) return 'login';
         
         // Path fallback
         const path = window.location.pathname.toLowerCase();
@@ -91,7 +91,7 @@
         if (path.endsWith('login.html')) return 'login';
         if (path.endsWith('register.html')) return 'register';
         
-        return 'welcome';
+        return 'login';
     })();
 
     const isSubdir = ['articles-create', 'articles-edit', 'articles-show', 'users-index', 'users-create', 'users-edit'].includes(pageName);
