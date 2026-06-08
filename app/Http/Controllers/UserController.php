@@ -37,19 +37,20 @@ class UserController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
         'password' => 'required|min:6',
+        'role' => 'required|in:superadmin,user',
     ]);
 
     User::create([
-    'name' => $request->name,
-    'email' => $request->email,
-    'password' => Hash::make($request->password),
-    'role' => $request->role,
-]);
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => $request->role,
+    ]);
 
-    return redirect('/users');
+    return redirect('/users')->with('success', 'User berhasil ditambahkan!');
 }
 
     /**
@@ -78,12 +79,14 @@ class UserController extends Controller
     $user = User::findOrFail($id);
 
     $request->validate([
-        'name' => 'required',
+        'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email,' . $user->id,
+        'role' => 'required|in:superadmin,user',
     ]);
 
     $user->name = $request->name;
     $user->email = $request->email;
+    $user->role = $request->role;
 
     if ($request->password) {
         $user->password = Hash::make($request->password);
@@ -91,7 +94,7 @@ class UserController extends Controller
 
     $user->save();
 
-    return redirect('/users');
+    return redirect('/users')->with('success', 'User berhasil diperbarui!');
 }
 
     /**

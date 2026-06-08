@@ -43,9 +43,9 @@ try {
 if ($users->isEmpty()) {
     $admin = new User([
         'id' => 1,
-        'name' => 'Galih Admin',
+        'name' => 'Galih Superadmin',
         'email' => 'galih@example.com',
-        'role' => 'admin',
+        'role' => 'superadmin',
         'created_at' => now(),
     ]);
     $author = new User([
@@ -58,38 +58,40 @@ if ($users->isEmpty()) {
     $users = collect([$admin, $author]);
 }
 
-$adminUser = $users->firstWhere('role', 'admin') ?? $users->first();
+$adminUser = $users->firstWhere('role', 'superadmin') ?? $users->first();
 
 if ($articles->isEmpty()) {
-    $articles = collect([
-        new Article([
-            'id' => 1,
-            'title' => 'Membangun Karir sebagai Web Developer',
-            'content' => "Menjadi web developer di era digital ini merupakan salah satu pilihan karir yang sangat menjanjikan. Dengan perkembangan teknologi yang sangat pesat, permintaan akan website dan aplikasi web terus meningkat setiap harinya.\n\nUntuk memulai karir ini, Anda perlu menguasai beberapa dasar penting:\n1. HTML untuk struktur halaman web\n2. CSS untuk memperindah tampilan (styling)\n3. JavaScript untuk logika dan interaksi dinamis\n\nSetelah menguasai dasar-dasar tersebut, Anda bisa mulai mempelajari framework modern seperti Laravel untuk backend, serta Tailwind CSS untuk styling cepat.",
-            'status' => 'published',
-            'user_id' => $users[1]->id ?? $adminUser->id,
-            'created_at' => now()->subDays(2),
-            'updated_at' => now()->subDays(2),
-        ]),
-        new Article([
-            'id' => 2,
-            'title' => 'Tips Produktivitas Bekerja dari Rumah (WFH)',
-            'content' => "Bekerja dari rumah (Work From Home) memberikan fleksibilitas tinggi, tetapi juga menyimpan tantangan produktivitas tersendiri. Banyak gangguan yang dapat memecah fokus Anda.\n\nBerikut beberapa tips agar tetap produktif:\n- Buat ruang kerja khusus yang nyaman dan tenang.\n- Tetapkan jadwal kerja yang jelas dan patuhi jam tersebut.\n- Buat daftar tugas (to-do list) setiap pagi.\n- Ambil istirahat pendek secara berkala untuk menyegarkan pikiran.\n\nDengan disiplin diri yang baik, WFH bisa menjadi sangat efisien dan menyenangkan.",
-            'status' => 'published',
-            'user_id' => $adminUser->id,
-            'created_at' => now()->subDay(),
-            'updated_at' => now()->subDay(),
-        ]),
-        new Article([
-            'id' => 3,
-            'title' => 'Konsep Draft Artikel Baru',
-            'content' => "Ini adalah konten dari artikel draft yang belum dipublikasikan ke publik. Konsep ini hanya dapat dilihat oleh penulis di menu Drafts.",
-            'status' => 'draft',
-            'user_id' => $adminUser->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]),
+    $art1 = new Article([
+        'title' => 'Membangun Karir sebagai Web Developer',
+        'content' => "Menjadi web developer di era digital ini merupakan salah satu pilihan karir yang sangat menjanjikan. Dengan perkembangan teknologi yang sangat pesat, permintaan akan website dan aplikasi web terus meningkat setiap harinya.\n\nUntuk memulai karir ini, Anda perlu menguasai beberapa dasar penting:\n1. HTML untuk struktur halaman web\n2. CSS untuk memperindah tampilan (styling)\n3. JavaScript untuk logika dan interaksi dinamis\n\nSetelah menguasai dasar-dasar tersebut, Anda bisa mulai mempelajari framework modern seperti Laravel untuk backend, serta Tailwind CSS untuk styling cepat.",
+        'status' => 'published',
+        'user_id' => $users[1]->id ?? $adminUser->id,
+        'created_at' => now()->subDays(2),
+        'updated_at' => now()->subDays(2),
     ]);
+    $art1->id = 1;
+
+    $art2 = new Article([
+        'title' => 'Tips Produktivitas Bekerja dari Rumah (WFH)',
+        'content' => "Bekerja dari rumah (Work From Home) memberikan fleksibilitas tinggi, tetapi juga menyimpan tantangan produktivitas tersendiri. Banyak gangguan yang dapat memecah fokus Anda.\n\nBerikut beberapa tips agar tetap produktif:\n- Buat ruang kerja khusus yang nyaman dan tenang.\n- Tetapkan jadwal kerja yang jelas dan patuhi jam tersebut.\n- Buat daftar tugas (to-do list) setiap pagi.\n- Ambil istirahat pendek secara berkala untuk menyegarkan pikiran.\n\nDengan disiplin diri yang baik, WFH bisa menjadi sangat efisien dan menyenangkan.",
+        'status' => 'published',
+        'user_id' => $adminUser->id,
+        'created_at' => now()->subDay(),
+        'updated_at' => now()->subDay(),
+    ]);
+    $art2->id = 2;
+
+    $art3 = new Article([
+        'title' => 'Konsep Draft Artikel Baru',
+        'content' => "Ini adalah konten dari artikel draft yang belum dipublikasikan ke publik. Konsep ini hanya dapat dilihat oleh penulis di menu Drafts.",
+        'status' => 'draft',
+        'user_id' => $adminUser->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $art3->id = 3;
+
+    $articles = collect([$art1, $art2, $art3]);
     
     foreach ($articles as $art) {
         $art->setRelation('user', $users->firstWhere('id', $art->user_id) ?? $adminUser);
@@ -119,7 +121,7 @@ $paginatedUsers = new \Illuminate\Pagination\LengthAwarePaginator(
 // Define views to render: array(output_file_relative_to_docs, blade_view_name, data, depth)
 $views = [
     // Root level files
-    ['index.html', 'welcome', [], 0],
+    ['index.html', 'auth.login', [], 0],
     ['about.html', 'about', [], 0],
     ['contact.html', 'contact', [], 0],
     ['login.html', 'auth.login', [], 0],

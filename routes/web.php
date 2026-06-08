@@ -5,9 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ArticleController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [ArticleController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
 
@@ -15,7 +13,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/drafts', [ArticleController::class, 'drafts'])->name('articles.drafts');
     Route::post('/articles/{article}/publish', [ArticleController::class, 'publish'])->name('articles.publish');
     
-    Route::resource('articles', ArticleController::class)->except(['index']);
+    Route::resource('articles', ArticleController::class)->except(['index', 'show']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -31,10 +29,13 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'superadmin'])->group(function () {
 
     Route::resource('users', UserController::class);
 
 });
+
+Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+Route::get('/articles/{slug}', [ArticleController::class, 'showPublic'])->name('articles.show');
 
 require __DIR__.'/auth.php';

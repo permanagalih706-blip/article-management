@@ -48,7 +48,7 @@
 
             <select name="sort" class="px-4 py-3.5 text-slate-600 bg-transparent border-none focus:ring-0 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_0.5rem_center] pr-10 cursor-pointer outline-none">
                 <option value="latest_created" {{ request('sort') == 'latest_created' ? 'selected' : '' }}>Terbaru</option>
-                <option value="latest_updated" {{ request('sort') == 'latest_updated' ? 'selected' : '' }}>Terbarukan</option>
+                <option value="latest_updated" {{ request('sort') == 'latest_updated' ? 'selected' : '' }}>Update Terbaru</option>
                 <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Judul A-Z</option>
                 <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Judul Z-A</option>
             </select>
@@ -80,7 +80,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative group">
                 
                 <!-- Admin Actions (Edit/Delete) - visible on hover for CRUD functionality -->
-                @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->id() === $article->user_id))
+                @if(auth()->check() && (auth()->user()->role === 'superadmin' || auth()->id() === $article->user_id))
                 <div class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <a href="/articles/{{ $article->id }}/edit" class="p-1.5 bg-yellow-50 text-yellow-500 rounded-md hover:bg-yellow-500 hover:text-white transition-colors" title="Edit">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -150,7 +150,7 @@
                                 </button>
                             </form>
                         @endif
-                        <a href="/articles/{{ $article->id }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 group/link">
+                        <a href="/articles/{{ $article->slug ?: $article->id }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 group/link">
                             Read
                             <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </a>

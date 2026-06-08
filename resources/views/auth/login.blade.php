@@ -56,6 +56,12 @@
                 <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Selamat Datang!</h2>
                 <p class="text-slate-500">Silakan login untuk mengakses akun Anda.</p>
             </div>
+            <div class="mb-6">
+                <a href="/"
+                class="inline-flex items-center text-sm text-slate-600 hover:text-indigo-600">
+                    ← Kembali ke Beranda
+                </a>
+            </div>
 
             <!-- Session Status -->
             <x-auth-session-status class="mb-4" :status="session('status')" />

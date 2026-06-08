@@ -56,8 +56,8 @@
                         </td>
                         <td class="px-6 py-4">{{ $user->email }}</td>
                         <td class="px-6 py-4">
-                            @if($user->role === 'admin')
-                                <span class="bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-200">Admin</span>
+                            @if($user->role === 'superadmin')
+                                <span class="bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-200">Superadmin</span>
                             @else
                                 <span class="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200">User</span>
                             @endif

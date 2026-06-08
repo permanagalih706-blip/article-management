@@ -3,13 +3,13 @@
 @section('header')
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div class="flex items-center gap-2 text-slate-500 text-sm">
-        <a href="/dashboard" class="hover:text-slate-900 transition-colors">Blog</a>
+        <a href="{{ auth()->check() ? '/dashboard' : '/articles' }}" class="hover:text-slate-900 transition-colors">{{ auth()->check() ? 'Dashboard' : 'Blog' }}</a>
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         <span class="text-slate-900 font-medium truncate max-w-[200px] sm:max-w-md">{{ $article->title }}</span>
     </div>
-    <a href="/dashboard" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm border border-slate-300">
+    <a href="{{ auth()->check() ? '/dashboard' : '/articles' }}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors text-sm border border-slate-300">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Kembali ke Blog
+        {{ auth()->check() ? 'Kembali ke Dashboard' : 'Kembali ke Blog' }}
     </a>
 </div>
 @endsection
@@ -74,7 +74,7 @@
             </div>
 
             <!-- Actions Footer -->
-            @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->id() === $article->user_id))
+            @if(auth()->check() && (auth()->user()->role === 'superadmin' || auth()->id() === $article->user_id))
             <div class="mt-12 pt-6 border-t border-slate-100 flex justify-end gap-3">
                 @if($article->status === 'draft' && auth()->id() === $article->user_id)
                 <form action="{{ route('articles.publish', $article->id) }}" method="POST" class="inline m-0">

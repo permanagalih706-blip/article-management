@@ -57,6 +57,13 @@
                 <p class="text-slate-500">Lengkapi data diri Anda di bawah ini.</p>
             </div>
 
+            <div class="mb-6">
+                <a href="/"
+                class="inline-flex items-center text-sm text-slate-600 hover:text-indigo-600">
+                    ← Kembali ke Beranda
+                </a>
+            </div>
+
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
 

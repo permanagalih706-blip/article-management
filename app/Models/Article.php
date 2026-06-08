@@ -15,8 +15,31 @@ class Article extends Model
         'title',
         'slug',
         'content',
-        'status'
+        'status',
+        'published_at',
     ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($article) {
+            if (empty($article->slug)) {
+                $baseSlug = \Illuminate\Support\Str::slug($article->title);
+                $slug = $baseSlug;
+                $count = 1;
+                while (static::where('slug', $slug)->where('id', '!=', $article->id)->exists()) {
+                    $slug = $baseSlug . '-' . $count;
+                    $count++;
+                }
+                $article->slug = $slug;
+            }
+        });
+    }
 
     public function user()
     {

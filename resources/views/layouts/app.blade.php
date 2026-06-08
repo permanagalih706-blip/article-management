@@ -43,11 +43,14 @@
                     <!-- Desktop Menu -->
                     <div class="hidden md:block">
                         <div class="flex items-baseline space-x-1">
-                            <a href="/dashboard" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Blog</a>
-                            <a href="/drafts" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('drafts') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Drafts</a>
-                            @if(auth()->check() && auth()->user()->role === 'admin')
-                                <a href="/users" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('users*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Users</a>
-                            @endif
+                            @auth
+                                <a href="/dashboard" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Dashboard</a>
+                                <a href="/drafts" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('drafts') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Drafts</a>
+                                @if(auth()->user()->role === 'superadmin')
+                                    <a href="/users" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('users*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Users</a>
+                                @endif
+                            @endauth
+                            <a href="/articles" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('articles*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Articles</a>
                             <a href="/about" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('about') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">About</a>
                             <a href="/contact" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('contact') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Contact</a>
                         </div>
