@@ -77,83 +77,105 @@
     <!-- Articles Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @forelse($articles as $article)
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative group">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative group overflow-hidden">
                 
+                <!-- Cover Image / Gradient Placeholder -->
+                @if($article->cover_image)
+                    <div class="w-full h-48 overflow-hidden shrink-0">
+                        <img src="{{ asset('storage/' . $article->cover_image) }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                @else
+                    <div class="w-full h-48 bg-gradient-to-br from-slate-700 to-indigo-955 flex items-center justify-center relative overflow-hidden shrink-0">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <span class="text-white/20 text-6xl font-black uppercase tracking-wider select-none">{{ substr($article->title, 0, 2) }}</span>
+                    </div>
+                @endif
+
                 <!-- Admin Actions (Edit/Delete) - visible on hover for CRUD functionality -->
                 @if(auth()->check() && (auth()->user()->role === 'superadmin' || auth()->id() === $article->user_id))
-                <div class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <a href="/articles/{{ $article->id }}/edit" class="p-1.5 bg-yellow-50 text-yellow-500 rounded-md hover:bg-yellow-500 hover:text-white transition-colors" title="Edit">
+                <div class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <a href="/articles/{{ $article->id }}/edit" class="p-1.5 bg-yellow-50/90 text-yellow-600 rounded-md hover:bg-yellow-500 hover:text-white transition-colors shadow-sm" title="Edit">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     </a>
                     <form action="/articles/{{ $article->id }}" method="POST" onsubmit="return confirm('Delete this article?')" class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="p-1.5 bg-red-50 text-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors" title="Delete">
+                        <button type="submit" class="p-1.5 bg-red-50/90 text-red-600 rounded-md hover:bg-red-500 hover:text-white transition-colors shadow-sm" title="Delete">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                     </form>
                 </div>
                 @endif
 
-                <!-- Category & Time -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex gap-2">
-                        @if($article->status === 'published')
-                            <span class="bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-200">
-                                Published
-                            </span>
-                        @else
-                            <span class="bg-amber-50 text-amber-600 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200">
-                                Draft
-                            </span>
-                        @endif
+                <div class="p-6 flex flex-col flex-grow">
+                    <!-- Category & Time -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex gap-2">
+                            @if($article->status === 'draft')
+                                <span class="bg-amber-50 text-amber-600 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200">
+                                    Draft
+                                </span>
+                            @elseif($article->published_at && $article->published_at->isFuture())
+                                <span class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-200" title="Terjadwal: {{ $article->published_at->format('d M Y H:i') }}">
+                                    Scheduled
+                                </span>
+                            @else
+                                <span class="bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-200">
+                                    Published
+                                </span>
+                            @endif
+                        </div>
+                        <span class="text-sm text-slate-500 font-medium">
+                            @if($article->published_at && $article->published_at->isFuture())
+                                Terbit: {{ $article->published_at->diffForHumans() }}
+                            @else
+                                {{ $article->updated_at ? $article->updated_at->diffForHumans() : 'Just now' }}
+                            @endif
+                        </span>
                     </div>
-                    <span class="text-sm text-slate-500">
-                        {{ $article->updated_at ? $article->updated_at->diffForHumans() : 'Just now' }}
-                    </span>
-                </div>
 
-                <!-- Title -->
-                <h2 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2 leading-snug">
-                    {{ $article->title }}
-                </h2>
+                    <!-- Title -->
+                    <h2 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2 leading-snug hover:text-blue-600 transition-colors">
+                        <a href="/articles/{{ $article->slug ?: $article->id }}">{{ $article->title }}</a>
+                    </h2>
 
-                <!-- Excerpt -->
-                <p class="text-slate-500 mb-6 line-clamp-3 text-sm leading-relaxed flex-1">
-                    {{ Str::limit(strip_tags($article->content), 120) }}
-                </p>
+                    <!-- Excerpt -->
+                    <p class="text-slate-500 mb-6 line-clamp-3 text-sm leading-relaxed flex-1">
+                        {{ Str::limit(strip_tags($article->content), 120) }}
+                    </p>
 
-                <!-- Footer: Author & Read More -->
-                <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 gap-2">
-                    <div class="flex items-center gap-3 min-w-0">
-                        @if(isset($article->user) && $article->user->profile_photo)
-                            <img src="{{ asset('storage/' . $article->user->profile_photo) }}" alt="{{ $article->user->name }}" class="w-8 h-8 rounded-full object-cover shadow-sm shrink-0">
-                        @else
-                            @php
-                                $colors = ['#6366f1','#0ea5e9','#22c55e','#f59e0b','#ef4444'];
-                                $color = $colors[($article->user->id ?? 0) % 5];
-                                $initials = strtoupper(substr($article->user->name ?? '?', 0, 1));
-                            @endphp
-                            <div class="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white shadow-sm shrink-0" style="background: {{ $color }};">
-                                {{ $initials }}
-                            </div>
-                        @endif
-                        <span class="text-sm font-medium text-slate-700 truncate">{{ $article->user->name ?? 'Unknown' }}</span>
-                    </div>
-                    
-                    <div class="flex items-center gap-3 shrink-0">
-                        @if($article->status === 'draft' && auth()->id() === $article->user_id)
-                            <form action="{{ route('articles.publish', $article->id) }}" method="POST" class="inline m-0">
-                                @csrf
-                                <button type="submit" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm">
-                                    Publish
-                                </button>
-                            </form>
-                        @endif
-                        <a href="/articles/{{ $article->slug ?: $article->id }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 group/link">
-                            Read
-                            <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
+                    <!-- Footer: Author & Read More -->
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-100 gap-2">
+                        <div class="flex items-center gap-3 min-w-0">
+                            @if(isset($article->user) && $article->user->profile_photo)
+                                <img src="{{ asset('storage/' . $article->user->profile_photo) }}" alt="{{ $article->user->name }}" class="w-8 h-8 rounded-full object-cover shadow-sm shrink-0">
+                            @else
+                                @php
+                                    $colors = ['#6366f1','#0ea5e9','#22c55e','#f59e0b','#ef4444'];
+                                    $color = $colors[($article->user->id ?? 0) % 5];
+                                    $initials = strtoupper(substr($article->user->name ?? '?', 0, 1));
+                                @endphp
+                                <div class="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white shadow-sm shrink-0" style="background: {{ $color }};">
+                                    {{ $initials }}
+                                </div>
+                            @endif
+                            <span class="text-sm font-medium text-slate-700 truncate">{{ $article->user->name ?? 'Unknown' }}</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 shrink-0">
+                            @if($article->status === 'draft' && auth()->id() === $article->user_id)
+                                <form action="{{ route('articles.publish', $article->id) }}" method="POST" class="inline m-0">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm">
+                                        Publish
+                                    </button>
+                                </form>
+                            @endif
+                            <a href="/articles/{{ $article->slug ?: $article->id }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 group/link">
+                                Read
+                                <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

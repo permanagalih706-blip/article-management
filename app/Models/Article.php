@@ -17,6 +17,7 @@ class Article extends Model
         'content',
         'status',
         'published_at',
+        'cover_image',
     ];
 
     protected $casts = [
@@ -44,5 +45,10 @@ class Article extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function media()
+    {
+        return $this->hasMany(Media::class)->orderBy('order')->orderBy('created_at');
     }
 }

@@ -22,7 +22,7 @@
             <p class="text-sm text-slate-500 mt-1">Bagikan ide dan cerita Anda kepada dunia.</p>
         </div>
         <div class="p-6">
-            <form action="/articles" method="POST" class="space-y-6">
+            <form action="/articles" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 {{-- Validation Error Summary --}}
@@ -50,11 +50,37 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
+                        <label for="cover_image" class="block text-sm font-medium text-slate-700 mb-2">Gambar Sampul (Cover Image)</label>
+                        <div class="relative border border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-4 transition-all bg-slate-50/50">
+                            <input type="file" name="cover_image" id="cover_image" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 file:cursor-pointer hover:file:bg-indigo-100">
+                            <p class="text-xs text-slate-400 mt-2">Maks. 5MB. Format: JPG, PNG, WEBP, GIF.</p>
+                        </div>
+                        @error('cover_image')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label for="media" class="block text-sm font-medium text-slate-700 mb-2">Galeri Media (Multiple Images/Videos)</label>
+                        <div class="relative border border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-4 transition-all bg-slate-50/50">
+                            <input type="file" name="media[]" id="media" multiple accept="image/*,video/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 file:cursor-pointer hover:file:bg-indigo-100">
+                            <p class="text-xs text-slate-400 mt-2">Pilih beberapa file. Maks. 20MB per file.</p>
+                        </div>
+                        @error('media')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
                         <label for="status" class="block text-sm font-medium text-slate-700 mb-2">Status Publikasi</label>
-                        <select name="status" id="status" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white">
-                            <option value="draft">Draft (Simpan sebagai konsep)</option>
-                            <option value="published">Published (Publikasikan sekarang)</option>
+                        <select name="status" id="status" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white" onchange="togglePublishDate()">
+                            <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Draft (Simpan sebagai konsep)</option>
+                            <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Published (Publikasikan)</option>
                         </select>
+                    </div>
+
+                    <div id="publish_date_wrapper" class="hidden">
+                        <label for="published_at" class="block text-sm font-medium text-slate-700 mb-2">Jadwal Publikasi (Optional)</label>
+                        <input type="datetime-local" name="published_at" id="published_at" value="{{ old('published_at') }}" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white text-slate-700">
+                        <p class="text-xs text-slate-400 mt-1">Kosongkan untuk langsung mempublikasikan saat ini juga.</p>
                     </div>
                 </div>
 
@@ -75,3 +101,20 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function togglePublishDate() {
+        const status = document.getElementById('status').value;
+        const wrapper = document.getElementById('publish_date_wrapper');
+        if (status === 'published') {
+            wrapper.classList.remove('hidden');
+        } else {
+            wrapper.classList.add('hidden');
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePublishDate();
+    });
+</script>
+@endpush

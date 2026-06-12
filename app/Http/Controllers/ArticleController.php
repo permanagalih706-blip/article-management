@@ -20,6 +20,7 @@ class ArticleController extends Controller
 
         $articles = Article::with('user')
             ->where('status', 'published')
+            ->where('published_at', '<=', now())
             ->when($search, function ($query) use ($search) {
                 $query->where('title', 'like', "%{$search}%");
             })
@@ -64,26 +65,57 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'   => 'required|string|max:255',
-            'content' => 'required|string',
-            'status'  => 'required|in:draft,published',
+            'title'        => 'required|string|max:255',
+            'content'      => 'required|string',
+            'status'       => 'required|in:draft,published',
+            'cover_image'  => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'media'        => 'nullable|array',
+            'media.*'      => 'required|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi,webm,m4v|max:20480',
+            'published_at' => 'nullable|date',
         ]);
 
-        // Slug is automatically handled by the saving event in the Article model fallback
-        // or generated here if we want a custom one:
         $slug = $request->slug ? $this->generateUniqueSlug($request->slug) : $this->generateUniqueSlug($request->title);
 
         $status = $request->status;
-        $published_at = ($status === 'published') ? now() : null;
+        $published_at = null;
 
-        Article::create([
-            'user_id' => auth()->id(), // user_id is automatically from logged-in user
-            'title'   => $request->title,
-            'slug'    => $slug,
-            'content' => $request->content,
-            'status'  => $status,
+        if ($status === 'published') {
+            $published_at = $request->filled('published_at') 
+                ? \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->published_at, 'Asia/Jakarta') 
+                : now();
+        }
+
+        $coverPath = null;
+        if ($request->hasFile('cover_image')) {
+            $coverPath = $request->file('cover_image')->store('covers', 'public');
+        }
+
+        $article = Article::create([
+            'user_id'      => auth()->id(),
+            'title'        => $request->title,
+            'slug'         => $slug,
+            'content'      => $request->content,
+            'status'       => $status,
             'published_at' => $published_at,
+            'cover_image'  => $coverPath,
         ]);
+
+        if ($request->hasFile('media')) {
+            $order = 0;
+            foreach ($request->file('media') as $file) {
+                $mimeType = $file->getMimeType();
+                $type = str_starts_with($mimeType, 'video/') ? 'video' : 'image';
+                $path = $file->store('media', 'public');
+                
+                $article->media()->create([
+                    'type'       => $type,
+                    'file_path'  => $path,
+                    'caption'    => null,
+                    'order'      => $order++,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+        }
 
         return redirect('/dashboard')->with('success', 'Artikel berhasil ditambahkan!');
     }
@@ -101,15 +133,16 @@ class ArticleController extends Controller
      */
     public function showPublic(string $slug)
     {
-        $article = Article::with('user')
+        $article = Article::with(['user', 'media'])
             ->where('slug', $slug)
             ->orWhere('id', $slug)
             ->firstOrFail();
 
-        if ($article->status === 'draft') {
-            if (!auth()->check() || (auth()->user()->role !== 'superadmin' && auth()->id() !== $article->user_id)) {
-                abort(403, 'Akses Ditolak: Anda tidak memiliki wewenang untuk melihat draft ini.');
-            }
+        $isAuthorOrAdmin = auth()->check() && (auth()->user()->role === 'superadmin' || auth()->id() === $article->user_id);
+        $isPublished = $article->status === 'published' && $article->published_at && $article->published_at->isPast();
+
+        if (!$isPublished && !$isAuthorOrAdmin) {
+            abort(403, 'Akses Ditolak: Artikel ini belum diterbitkan atau masih berupa konsep.');
         }
 
         return view('articles.show', compact('article'));
@@ -120,7 +153,7 @@ class ArticleController extends Controller
      */
     public function edit(string $id)
     {
-        $article = Article::findOrFail($id);
+        $article = Article::with('media')->findOrFail($id);
 
         if (auth()->user()->role !== 'superadmin' && auth()->id() !== $article->user_id) {
             abort(403, 'Akses Ditolak: Anda hanya dapat mengubah artikel milik sendiri.');
@@ -143,35 +176,99 @@ class ArticleController extends Controller
         }
 
         $request->validate([
-            'title'   => 'required|string|max:255',
-            'content' => 'required|string',
-            'status'  => 'required|in:draft,published',
+            'title'          => 'required|string|max:255',
+            'content'        => 'required|string',
+            'status'         => 'required|in:draft,published',
+            'cover_image'    => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'media'          => 'nullable|array',
+            'media.*'        => 'required|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi,webm,m4v|max:20480',
+            'published_at'   => 'nullable|date',
+            'media_captions' => 'nullable|array',
+            'media_orders'   => 'nullable|array',
         ]);
 
-        $status = $article->status;
+        $status = $request->status;
         $published_at = $article->published_at;
 
-        if ($status !== 'published') {
-            $status = $request->status;
-            if ($status === 'published') {
+        if ($status === 'draft') {
+            $published_at = null;
+        } else {
+            // published
+            if ($request->filled('published_at')) {
+                $published_at = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->published_at, 'Asia/Jakarta');
+            } elseif (!$published_at) {
                 $published_at = now();
             }
         }
 
-        // user_id tidak pernah diubah saat update — penulis artikel terkunci
         $userId = $article->user_id;
 
-        // Generate unique slug, excluding the current article
+        $coverPath = $article->cover_image;
+        if ($request->hasFile('cover_image')) {
+            if ($coverPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($coverPath)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($coverPath);
+            }
+            $coverPath = $request->file('cover_image')->store('covers', 'public');
+        } elseif ($request->boolean('clear_cover')) {
+            if ($coverPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($coverPath)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($coverPath);
+            }
+            $coverPath = null;
+        }
+
         $slug = $request->slug ? $this->generateUniqueSlug($request->slug, $id) : $this->generateUniqueSlug($request->title, $id);
 
         $article->update([
-            'user_id' => $userId,
-            'title'   => $request->title,
-            'slug'    => $slug,
-            'content' => $request->content,
-            'status'  => $status,
+            'user_id'      => $userId,
+            'title'        => $request->title,
+            'slug'         => $slug,
+            'content'      => $request->content,
+            'status'       => $status,
             'published_at' => $published_at,
+            'cover_image'  => $coverPath,
         ]);
+
+        // Process captions updates
+        if ($request->has('media_captions')) {
+            foreach ($request->media_captions as $mediaId => $caption) {
+                $media = \App\Models\Media::find($mediaId);
+                if ($media && ($media->article->user_id === auth()->id() || auth()->user()->role === 'superadmin')) {
+                    $media->caption = $caption;
+                    $media->save();
+                }
+            }
+        }
+
+        // Process existing media reordering
+        if ($request->has('media_orders')) {
+            foreach ($request->media_orders as $mediaId => $order) {
+                $media = \App\Models\Media::find($mediaId);
+                if ($media && ($media->article->user_id === auth()->id() || auth()->user()->role === 'superadmin')) {
+                    $media->order = (int)$order;
+                    $media->save();
+                }
+            }
+        }
+
+        // Process new media uploads
+        if ($request->hasFile('media')) {
+            $maxOrder = (int)$article->media()->max('order');
+            $order = $maxOrder + 1;
+
+            foreach ($request->file('media') as $file) {
+                $mimeType = $file->getMimeType();
+                $type = str_starts_with($mimeType, 'video/') ? 'video' : 'image';
+                $path = $file->store('media', 'public');
+
+                $article->media()->create([
+                    'type'       => $type,
+                    'file_path'  => $path,
+                    'caption'    => null,
+                    'order'      => $order++,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+        }
 
         return redirect('/dashboard')->with('success', 'Artikel berhasil diperbarui!');
     }
@@ -181,10 +278,22 @@ class ArticleController extends Controller
      */
     public function destroy(string $id)
     {
-        $article = Article::findOrFail($id);
+        $article = Article::with('media')->findOrFail($id);
 
         if (auth()->user()->role !== 'superadmin' && auth()->id() !== $article->user_id) {
             abort(403, 'Akses Ditolak: Anda hanya dapat menghapus artikel milik sendiri.');
+        }
+
+        // Physically delete all associated media files
+        foreach ($article->media as $media) {
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($media->file_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($media->file_path);
+            }
+        }
+
+        // Physically delete cover image
+        if ($article->cover_image && \Illuminate\Support\Facades\Storage::disk('public')->exists($article->cover_image)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($article->cover_image);
         }
 
         $article->delete();
@@ -201,16 +310,15 @@ class ArticleController extends Controller
         $author = request('author');
         $sort = request('sort', 'latest_created');
 
-        // Superadmin sees all articles, User sees all published articles + their own drafts
         $articles = Article::with('user')
             ->where(function ($query) {
                 if (auth()->user()->role === 'superadmin') {
-                    // Superadmin can see everything
                     $query->whereRaw('1=1');
                 } else {
-                    // Regular user sees published ones OR their own
-                    $query->where('status', 'published')
-                          ->orWhere('user_id', auth()->id());
+                    $query->where(function ($q) {
+                        $q->where('status', 'published')
+                          ->where('published_at', '<=', now());
+                    })->orWhere('user_id', auth()->id());
                 }
             })
             ->when($search, function ($query) use ($search) {
@@ -249,7 +357,6 @@ class ArticleController extends Controller
         $search = request('search');
         $sort = request('sort', 'latest_created');
 
-        // Drafts are always owner-specific (or superadmin sees all draft articles if requested, but regular users see only their own)
         $articles = Article::with('user')
             ->where('status', 'draft')
             ->where(function ($query) {
@@ -299,6 +406,81 @@ class ArticleController extends Controller
         $article->save();
 
         return redirect()->back()->with('success', 'Artikel berhasil diterbitkan!');
+    }
+
+    /**
+     * Set cover image from existing media image.
+     */
+    public function setCover(string $articleId, string $mediaId)
+    {
+        $article = Article::findOrFail($articleId);
+        $media = \App\Models\Media::findOrFail($mediaId);
+
+        if (auth()->user()->role !== 'superadmin' && auth()->id() !== $article->user_id) {
+            abort(403, 'Akses Ditolak: Anda hanya dapat memperbarui artikel milik sendiri.');
+        }
+
+        if ($media->article_id != $article->id || $media->type !== 'image') {
+            return redirect()->back()->with('error', 'Media tidak valid atau bukan gambar.');
+        }
+
+        $article->cover_image = $media->file_path;
+        $article->save();
+
+        return redirect()->back()->with('success', 'Gambar sampul berhasil diubah dari galeri media.');
+    }
+
+    /**
+     * Delete a single media record and its physical file.
+     */
+    public function deleteMedia(string $mediaId)
+    {
+        $media = \App\Models\Media::findOrFail($mediaId);
+        $article = $media->article;
+
+        if (auth()->user()->role !== 'superadmin' && auth()->id() !== $article->user_id) {
+            abort(403, 'Akses Ditolak: Anda tidak dapat menghapus media ini.');
+        }
+
+        if ($article->cover_image === $media->file_path) {
+            $article->cover_image = null;
+            $article->save();
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($media->file_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($media->file_path);
+        }
+
+        $media->delete();
+
+        return redirect()->back()->with('success', 'Media berhasil dihapus.');
+    }
+
+    /**
+     * Reorder media files via AJAX.
+     */
+    public function reorderMedia(Request $request, string $articleId)
+    {
+        $article = Article::findOrFail($articleId);
+
+        if (auth()->user()->role !== 'superadmin' && auth()->id() !== $article->user_id) {
+            return response()->json(['error' => 'Akses Ditolak.'], 403);
+        }
+
+        $request->validate([
+            'order'   => 'required|array',
+            'order.*' => 'integer|exists:media,id'
+        ]);
+
+        foreach ($request->order as $index => $mediaId) {
+            $media = \App\Models\Media::where('article_id', $article->id)->find($mediaId);
+            if ($media) {
+                $media->order = $index;
+                $media->save();
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Urutan media berhasil diperbarui.']);
     }
 
     /**

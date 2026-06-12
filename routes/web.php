@@ -13,6 +13,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/drafts', [ArticleController::class, 'drafts'])->name('articles.drafts');
     Route::post('/articles/{article}/publish', [ArticleController::class, 'publish'])->name('articles.publish');
     
+    // Media routes
+    Route::post('/articles/{article}/media/{media}/set-cover', [ArticleController::class, 'setCover'])->name('articles.media.set-cover');
+    Route::delete('/media/{media}', [ArticleController::class, 'deleteMedia'])->name('media.destroy');
+    Route::post('/articles/{article}/media/reorder', [ArticleController::class, 'reorderMedia'])->name('articles.media.reorder');
+
     Route::resource('articles', ArticleController::class)->except(['index', 'show']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
