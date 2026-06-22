@@ -14,8 +14,9 @@ class CommentReportController extends Controller
     public function store(Request $request, Comment $comment)
     {
         $request->validate([
-            'reason'      => 'required|in:spam,abusive,harassment,other',
-            'description' => 'nullable|string|max:1000',
+            'reason'        => 'required|string|max:255',
+            'custom_reason' => 'nullable|string|max:255',
+            'description'   => 'nullable|string|max:1000',
         ]);
 
         // Prevent reporting own comment
@@ -33,10 +34,15 @@ class CommentReportController extends Controller
             return redirect()->back()->with('error', 'Anda sudah melaporkan komentar ini sebelumnya.');
         }
 
+        $reason = $request->reason;
+        if ($reason === 'other') {
+            $reason = $request->filled('custom_reason') ? $request->custom_reason : 'Lainnya';
+        }
+
         CommentReport::create([
             'comment_id'  => $comment->id,
             'user_id'     => auth()->id(),
-            'reason'      => $request->reason,
+            'reason'      => $reason,
             'description' => $request->description,
             'status'      => 'pending',
         ]);

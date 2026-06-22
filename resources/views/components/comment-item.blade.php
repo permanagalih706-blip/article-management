@@ -128,13 +128,16 @@
             <form action="{{ route('comments.report', $comment->id) }}" method="POST" class="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 @csrf
                 <p class="text-sm font-semibold text-amber-800 mb-3">Laporkan Komentar</p>
-                <select name="reason" required class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 mb-2">
+                <select name="reason" onchange="toggleCustomReason(this, {{ $comment->id }})" required class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 mb-2">
                     <option value="">-- Pilih Alasan --</option>
                     <option value="spam">Spam</option>
                     <option value="abusive">Konten Kasar / Abusive</option>
                     <option value="harassment">Pelecehan / Harassment</option>
-                    <option value="other">Lainnya</option>
+                    <option value="other">Lainnya (Tulis alasan sendiri)</option>
                 </select>
+                <div id="custom-reason-container-{{ $comment->id }}" class="hidden mb-2">
+                    <input type="text" name="custom_reason" id="custom-reason-input-{{ $comment->id }}" class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="Tuliskan alasan Anda...">
+                </div>
                 <textarea name="description" rows="2" class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-none" placeholder="Deskripsi tambahan (opsional)..."></textarea>
                 <div class="flex items-center gap-2 mt-2">
                     <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
@@ -148,6 +151,21 @@
         </div>
         @endif
         @endauth
+        <script>
+            if (typeof toggleCustomReason === 'undefined') {
+                window.toggleCustomReason = function(select, commentId) {
+                    const container = document.getElementById('custom-reason-container-' + commentId);
+                    const input = document.getElementById('custom-reason-input-' + commentId);
+                    if (select.value === 'other') {
+                        container.classList.remove('hidden');
+                        input.setAttribute('required', 'required');
+                    } else {
+                        container.classList.add('hidden');
+                        input.removeAttribute('required');
+                    }
+                }
+            }
+        </script>
     </div>
 
     {{-- Nested Replies (recursive) --}}

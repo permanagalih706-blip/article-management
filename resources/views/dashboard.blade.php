@@ -20,6 +20,93 @@
         </div>
     @endif
 
+    {{-- Admin Moderation Panel --}}
+    @if(auth()->check() && auth()->user()->role === 'superadmin')
+        @php
+            $pendingReports = \App\Models\CommentReport::with(['comment.user', 'comment.article', 'reporter'])
+                ->where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+        @endphp
+
+        @if($pendingReports->count() > 0)
+            <div class="mb-10 bg-rose-50/50 border border-rose-200/80 rounded-2xl p-6 shadow-sm animate-fade-in">
+                <div class="flex items-center justify-between mb-4 border-b border-rose-200/60 pb-3">
+                    <h3 class="text-lg font-black text-rose-950 flex items-center gap-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                        </span>
+                        Laporan Komentar Baru (Pending)
+                    </h3>
+                    <a href="{{ route('admin.reports.index') }}" class="text-xs font-bold text-rose-700 hover:text-rose-900 transition-colors uppercase tracking-wider">
+                        Lihat Semua Laporan &rarr;
+                    </a>
+                </div>
+
+                <div class="divide-y divide-rose-200/40">
+                    @foreach($pendingReports as $report)
+                        <div class="py-4 first:pt-0 last:pb-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                                    <span class="text-xs font-bold bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-lg">
+                                        Alasan: {{ $report->reason }}
+                                    </span>
+                                    <span class="text-xs text-slate-500">
+                                        Dilaporkan oleh <strong>{{ $report->reporter->name ?? 'Unknown' }}</strong>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-medium">
+                                        {{ $report->created_at->diffForHumans() }}
+                                    </span>
+                                </div>
+                                @if($report->comment)
+                                    <p class="text-sm font-semibold text-slate-900 bg-white border border-rose-100 rounded-xl p-3 shadow-xs truncate max-w-2xl">
+                                        "{{ $report->comment->body }}"
+                                    </p>
+                                    <span class="block text-xs text-slate-500 mt-1">
+                                        Oleh: {{ $report->comment->user->name ?? 'Unknown' }} | Artikel: <a href="{{ route('articles.show', $report->comment->article->slug ?? '') }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline font-semibold">{{ $report->comment->article->title ?? '' }}</a>
+                                    </span>
+                                @else
+                                    <p class="text-sm text-slate-400 italic bg-white border border-rose-100 rounded-xl p-3 shadow-xs">
+                                        [Komentar telah dihapus]
+                                    </p>
+                                @endif
+                                @if($report->description)
+                                    <p class="text-xs text-rose-700/80 mt-1.5 italic font-medium">
+                                        Catatan tambahan pelapor: "{{ $report->description }}"
+                                    </p>
+                                @endif
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <form action="{{ route('admin.reports.resolve', $report->id) }}" method="POST" class="inline m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus komentar ini?')">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="action" value="delete_comment">
+                                    <button type="submit" class="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm">
+                                        Hapus Komentar
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.reports.resolve', $report->id) }}" method="POST" class="inline m-0">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="action" value="dismiss">
+                                    <button type="submit" class="px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-colors shadow-xs">
+                                        Abaikan
+                                    </button>
+                                </form>
+                                <a href="{{ route('admin.reports.show', $report->id) }}" class="px-3.5 py-2 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors shadow-xs">
+                                    Detail
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    @endif
+
     <!-- Search Bar -->
     <div class="flex justify-center mb-12">
         <form action="{{ request()->url() }}" method="GET" class="w-full max-w-4xl flex flex-col sm:flex-row items-stretch sm:items-center shadow-sm rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all">

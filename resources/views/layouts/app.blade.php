@@ -49,7 +49,17 @@
                                 @if(auth()->user()->role === 'superadmin')
                                     <a href="/users" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('users*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Users</a>
                                     <a href="{{ route('admin.allowed-words.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/allowed-words*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Blokir Kata</a>
-                                    <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/reports*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Laporan</a>
+                                    @php
+                                        $pendingReportsCount = \App\Models\CommentReport::where('status', 'pending')->count();
+                                    @endphp
+                                    <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/reports*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors flex items-center gap-2">
+                                        Laporan
+                                        @if($pendingReportsCount > 0)
+                                            <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-1 ring-white shrink-0 shadow-sm animate-pulse">
+                                                {{ $pendingReportsCount }}
+                                            </span>
+                                        @endif
+                                    </a>
                                     <a href="{{ route('admin.moderation-logs.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/moderation-logs*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Log Moderasi</a>
                                 @endif
                             @endauth
