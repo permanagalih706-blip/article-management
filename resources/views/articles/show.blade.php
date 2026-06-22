@@ -414,6 +414,22 @@
         .catch(error => console.error('Rating error:', error));
     }
 
+    // ==================== Scroll to Parent Comment and Highlight ====================
+    function scrollToComment(commentId) {
+        const target = document.getElementById('comment-' + commentId);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            const card = target.querySelector('.comment-card');
+            if (card) {
+                card.classList.add('ring-4', 'ring-blue-500/20', 'bg-blue-50/50');
+                setTimeout(() => {
+                    card.classList.remove('ring-4', 'ring-blue-500/20', 'bg-blue-50/50');
+                }, 2000);
+            }
+        }
+    }
+
     // ==================== Comment Forms Toggle ====================
     function toggleReplyForm(commentId) {
         const form = document.getElementById('reply-form-' + commentId);

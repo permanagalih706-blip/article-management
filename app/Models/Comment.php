@@ -29,7 +29,7 @@ class Comment extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Comment::class, 'parent_id');
+        return $this->belongsTo(Comment::class, 'parent_id')->withTrashed()->with('user');
     }
 
     public function replies()
@@ -40,5 +40,18 @@ class Comment extends Model
     public function reports()
     {
         return $this->hasMany(CommentReport::class);
+    }
+
+    /**
+     * Get all nested replies flattened.
+     */
+    public function getAllReplies()
+    {
+        $allReplies = collect();
+        foreach ($this->replies as $reply) {
+            $allReplies->push($reply);
+            $allReplies = $allReplies->merge($reply->getAllReplies());
+        }
+        return $allReplies->sortBy('created_at');
     }
 }

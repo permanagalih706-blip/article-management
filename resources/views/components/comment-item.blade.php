@@ -1,7 +1,7 @@
 @props(['comment', 'article', 'depth' => 0])
 
 <div class="comment-item {{ $depth > 0 ? 'ml-6 sm:ml-10 border-l-2 border-indigo-100 pl-4 sm:pl-6' : '' }}" id="comment-{{ $comment->id }}">
-    <div class="bg-white rounded-xl p-4 sm:p-5 {{ $depth === 0 ? 'border border-slate-200 shadow-sm' : 'border border-slate-100' }} transition-all hover:border-slate-300">
+    <div class="comment-card bg-white rounded-xl p-4 sm:p-5 {{ $depth === 0 ? 'border border-slate-200 shadow-sm' : 'border border-slate-100' }} transition-all hover:border-slate-300">
         
         {{-- Comment Header --}}
         <div class="flex items-start justify-between gap-3 mb-3">
@@ -23,6 +23,15 @@
                     @if($comment->user && $comment->user->role === 'superadmin')
                         <span class="ml-1 text-[10px] font-bold bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full uppercase tracking-wide">Admin</span>
                     @endif
+                    
+                    {{-- Reply target badge --}}
+                    @if($comment->parent_id && $comment->parent)
+                        <button type="button" onclick="scrollToComment({{ $comment->parent_id }})" class="ml-1 inline-flex items-center gap-0.5 text-[10px] font-black text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded transition-all uppercase tracking-wider shadow-2xs border border-blue-200" title="Klik untuk melihat komentar asli">
+                            <i class="fa-solid fa-reply text-[8px] transform -scale-x-100"></i>
+                            {{ $comment->parent->user->name ?? 'User' }}
+                        </button>
+                    @endif
+
                     <span class="block text-xs text-slate-400 mt-0.5">{{ $comment->created_at->diffForHumans() }}</span>
                 </div>
             </div>
@@ -62,7 +71,7 @@
 
                     {{-- Report (not own comment) --}}
                     @if(auth()->id() !== $comment->user_id)
-                    <button onclick="toggleReportForm({{ $comment->id }})" @click="open = false" class="w-full text-left px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 flex items-center gap-2 transition-colors border-t border-slate-100 mt-1 pt-2">
+                    <button onclick="toggleReportForm({{ $comment->id }})" @click="open = false" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors border-t border-slate-100 mt-1 pt-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
                         Laporkan
                     </button>
@@ -125,10 +134,10 @@
         @auth
         @if(auth()->id() !== $comment->user_id && !$comment->trashed())
         <div id="report-form-{{ $comment->id }}" class="hidden mt-3">
-            <form action="{{ route('comments.report', $comment->id) }}" method="POST" class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <form action="{{ route('comments.report', $comment->id) }}" method="POST" class="bg-red-50 border border-red-200 rounded-xl p-4">
                 @csrf
-                <p class="text-sm font-semibold text-amber-800 mb-3">Laporkan Komentar</p>
-                <select name="reason" onchange="toggleCustomReason(this, {{ $comment->id }})" required class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 mb-2">
+                <p class="text-sm font-semibold text-red-800 mb-3">Laporkan Komentar</p>
+                <select name="reason" onchange="toggleCustomReason(this, {{ $comment->id }})" required class="w-full px-3 py-2 border border-red-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-2">
                     <option value="">-- Pilih Alasan --</option>
                     <option value="spam">Spam</option>
                     <option value="abusive">Konten Kasar / Abusive</option>
@@ -136,14 +145,14 @@
                     <option value="other">Lainnya (Tulis alasan sendiri)</option>
                 </select>
                 <div id="custom-reason-container-{{ $comment->id }}" class="hidden mb-2">
-                    <input type="text" name="custom_reason" id="custom-reason-input-{{ $comment->id }}" class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="Tuliskan alasan Anda...">
+                    <input type="text" name="custom_reason" id="custom-reason-input-{{ $comment->id }}" class="w-full px-3 py-2 border border-red-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Tuliskan alasan Anda...">
                 </div>
-                <textarea name="description" rows="2" class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-none" placeholder="Deskripsi tambahan (opsional)..."></textarea>
+                <textarea name="description" rows="2" class="w-full px-3 py-2 border border-red-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none" placeholder="Deskripsi tambahan (opsional)..."></textarea>
                 <div class="flex items-center gap-2 mt-2">
-                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
+                    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
                         Kirim Laporan
                     </button>
-                    <button type="button" onclick="toggleReportForm({{ $comment->id }})" class="px-4 py-2 bg-white hover:bg-amber-100 text-amber-700 text-sm font-semibold rounded-lg transition-colors border border-amber-300">
+                    <button type="button" onclick="toggleReportForm({{ $comment->id }})" class="px-4 py-2 bg-white hover:bg-red-100 text-red-700 text-sm font-semibold rounded-lg transition-colors border border-red-300">
                         Batal
                     </button>
                 </div>
@@ -168,12 +177,17 @@
         </script>
     </div>
 
-    {{-- Nested Replies (recursive) --}}
-    @if($comment->replies && $comment->replies->count() > 0)
-        <div class="mt-3 space-y-3">
-            @foreach($comment->replies as $reply)
-                @include('components.comment-item', ['comment' => $reply, 'article' => $article, 'depth' => $depth + 1])
-            @endforeach
-        </div>
+    {{-- Parallel Replies (only for top-level comments) --}}
+    @if($depth === 0)
+        @php
+            $allReplies = $comment->getAllReplies();
+        @endphp
+        @if($allReplies->count() > 0)
+            <div class="mt-3 space-y-3">
+                @foreach($allReplies as $reply)
+                    @include('components.comment-item', ['comment' => $reply, 'article' => $article, 'depth' => 1])
+                @endforeach
+            </div>
+        @endif
     @endif
 </div>

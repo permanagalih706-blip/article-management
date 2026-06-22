@@ -63,7 +63,6 @@
                                     <a href="{{ route('admin.moderation-logs.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/moderation-logs*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Log Moderasi</a>
                                 @endif
                             @endauth
-                            <a href="/articles" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('articles*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Articles</a>
                             <a href="/about" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('about') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">About</a>
                             <a href="/contact" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('contact') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Contact</a>
                         </div>
