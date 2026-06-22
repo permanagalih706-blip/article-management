@@ -18,7 +18,7 @@ class ArticleController extends Controller
         $author = request('author');
         $sort = request('sort', 'latest_created');
 
-        $articles = Article::with('user')
+        $articles = Article::with(['user', 'ratings'])
             ->where('status', 'published')
             ->where('published_at', '<=', now())
             ->when($search, function ($query) use ($search) {
@@ -322,7 +322,7 @@ class ArticleController extends Controller
         $author = request('author');
         $sort = request('sort', 'latest_created');
 
-        $articles = Article::with('user')
+        $articles = Article::with(['user', 'ratings'])
             ->where(function ($query) {
                 if (auth()->user()->role === 'superadmin') {
                     $query->whereRaw('1=1');

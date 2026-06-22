@@ -183,7 +183,7 @@
             $allReplies = $comment->getAllReplies();
         @endphp
         @if($allReplies->count() > 0)
-            <div class="mt-3 space-y-3">
+            <div class="mt-4 space-y-5">
                 @foreach($allReplies as $reply)
                     @include('components.comment-item', ['comment' => $reply, 'article' => $article, 'depth' => 1])
                 @endforeach
