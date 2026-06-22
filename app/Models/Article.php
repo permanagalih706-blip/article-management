@@ -51,4 +51,24 @@ class Article extends Model
     {
         return $this->hasMany(Media::class)->orderBy('order')->orderBy('created_at');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function averageRating()
+    {
+        return round($this->ratings()->avg('value'), 1) ?: 0;
+    }
+
+    public function userRating($userId)
+    {
+        return $this->ratings()->where('user_id', $userId)->first();
+    }
 }

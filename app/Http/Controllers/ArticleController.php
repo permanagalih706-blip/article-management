@@ -145,7 +145,19 @@ class ArticleController extends Controller
             abort(403, 'Akses Ditolak: Artikel ini belum diterbitkan atau masih berupa konsep.');
         }
 
-        return view('articles.show', compact('article'));
+        // Load top-level comments with nested replies
+        $comments = $article->comments()
+            ->whereNull('parent_id')
+            ->with(['user', 'replies.user', 'replies.replies'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Rating data
+        $averageRating = $article->averageRating();
+        $ratingCount = $article->ratings()->count();
+        $userRating = auth()->check() ? $article->userRating(auth()->id()) : null;
+
+        return view('articles.show', compact('article', 'comments', 'averageRating', 'ratingCount', 'userRating'));
     }
 
     /**

@@ -48,6 +48,9 @@
                                 <a href="/drafts" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('drafts') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Drafts</a>
                                 @if(auth()->user()->role === 'superadmin')
                                     <a href="/users" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('users*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Users</a>
+                                    <a href="{{ route('admin.allowed-words.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/allowed-words*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Blokir Kata</a>
+                                    <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/reports*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Laporan</a>
+                                    <a href="{{ route('admin.moderation-logs.index') }}" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('admin/moderation-logs*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Log Moderasi</a>
                                 @endif
                             @endauth
                             <a href="/articles" class="px-4 py-2 rounded-md text-sm font-medium {{ request()->is('articles*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white' }} transition-colors">Articles</a>

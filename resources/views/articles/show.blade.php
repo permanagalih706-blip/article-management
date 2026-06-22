@@ -185,10 +185,132 @@
 
         </div>
     </article>
+
+    <!-- ==================== RATING SECTION ==================== -->
+    <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    Rating Artikel
+                </h3>
+                <div class="flex items-center gap-3 mt-2">
+                    <span class="text-3xl font-black text-slate-900" id="average-rating-display">{{ $averageRating }}</span>
+                    <div class="flex flex-col">
+                        <!-- Average Stars Display -->
+                        <div class="flex items-center gap-0.5" id="average-stars">
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= floor($averageRating))
+                                    <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                @elseif($i - $averageRating < 1 && $i - $averageRating > 0)
+                                    <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <defs><linearGradient id="half-star"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="#e2e8f0"/></linearGradient></defs>
+                                        <path fill="url(#half-star)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                @else
+                                    <svg class="w-5 h-5 text-slate-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                @endif
+                            @endfor
+                        </div>
+                        <span class="text-xs text-slate-500 mt-0.5"><span id="rating-count-display">{{ $ratingCount }}</span> penilaian</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Interactive Star Rating --}}
+            @auth
+            <div class="flex flex-col items-center sm:items-end gap-2">
+                <span class="text-xs text-slate-500 font-medium">Rating Anda:</span>
+                <div class="flex items-center gap-1" id="star-rating-input">
+                    @for($i = 1; $i <= 5; $i++)
+                        <button type="button" onclick="submitRating({{ $i }})" 
+                            class="star-btn p-0.5 transition-all duration-200 hover:scale-125 focus:outline-none focus:scale-125"
+                            data-value="{{ $i }}"
+                            title="{{ $i }} bintang">
+                            <svg class="w-8 h-8 {{ $userRating && $userRating->value >= $i ? 'text-amber-400' : 'text-slate-300 hover:text-amber-300' }} transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </button>
+                    @endfor
+                </div>
+                <span id="rating-feedback" class="text-xs text-emerald-600 font-medium hidden"></span>
+            </div>
+            @else
+            <div class="text-sm text-slate-500">
+                <a href="/login" class="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors">Login</a> untuk memberikan rating
+            </div>
+            @endauth
+        </div>
+    </div>
+
+    <!-- ==================== COMMENTS SECTION ==================== -->
+    <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 mb-6">
+            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            Komentar
+            <span class="text-sm font-medium text-slate-400">({{ $comments->count() }})</span>
+        </h3>
+
+        {{-- Comment Form --}}
+        @auth
+        <div class="mb-8">
+            <form action="{{ route('comments.store', $article->id) }}" method="POST">
+                @csrf
+                <div class="flex items-start gap-3">
+                    @if(auth()->user()->profile_photo)
+                        <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100 shadow-sm shrink-0 mt-1">
+                    @else
+                        @php
+                            $colors = ['#6366f1','#0ea5e9','#22c55e','#f59e0b','#ef4444'];
+                            $avatarColor = $colors[(auth()->id() ?? 0) % 5];
+                            $avatarInitials = strtoupper(substr(auth()->user()->name ?? '?', 0, 1));
+                        @endphp
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold text-white shadow-sm shrink-0 mt-1" style="background: {{ $avatarColor }};">
+                            {{ $avatarInitials }}
+                        </div>
+                    @endif
+                    <div class="flex-1">
+                        <textarea name="body" rows="3" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none transition-all placeholder:text-slate-400" placeholder="Tulis komentar Anda..." required></textarea>
+                        @error('body')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                        <div class="flex justify-end mt-2">
+                            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                                Kirim Komentar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        @else
+        <div class="mb-8 bg-slate-50 border border-slate-200 rounded-xl p-5 text-center">
+            <p class="text-sm text-slate-600">
+                <a href="/login" class="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors">Login</a> untuk menulis komentar
+            </p>
+        </div>
+        @endauth
+
+        {{-- Comments List --}}
+        <div class="space-y-4" id="comments-list">
+            @forelse($comments as $comment)
+                @include('components.comment-item', ['comment' => $comment, 'article' => $article, 'depth' => 0])
+            @empty
+                <div class="text-center py-8">
+                    <svg class="w-12 h-12 text-slate-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <p class="text-slate-400 text-sm">Belum ada komentar. Jadilah yang pertama!</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
+    // ==================== Gallery Slider ====================
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide-item');
     const thumbs = document.querySelectorAll('.thumb-item');
@@ -244,6 +366,111 @@
 
     function goToSlide(index) {
         showSlide(index);
+    }
+
+    // ==================== Rating ====================
+    function submitRating(value) {
+        const articleId = {{ $article->id }};
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') 
+            || '{{ csrf_token() }}';
+
+        fetch(`/articles/${articleId}/rate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({ value: value })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update average display
+                document.getElementById('average-rating-display').textContent = data.average;
+                document.getElementById('rating-count-display').textContent = data.count;
+
+                // Update interactive star colors
+                document.querySelectorAll('.star-btn').forEach(btn => {
+                    const btnValue = parseInt(btn.getAttribute('data-value'));
+                    const svg = btn.querySelector('svg');
+                    if (btnValue <= data.userRating) {
+                        svg.classList.remove('text-slate-300', 'hover:text-amber-300');
+                        svg.classList.add('text-amber-400');
+                    } else {
+                        svg.classList.remove('text-amber-400');
+                        svg.classList.add('text-slate-300', 'hover:text-amber-300');
+                    }
+                });
+
+                // Show feedback
+                const feedback = document.getElementById('rating-feedback');
+                feedback.textContent = data.message;
+                feedback.classList.remove('hidden');
+                setTimeout(() => feedback.classList.add('hidden'), 3000);
+            }
+        })
+        .catch(error => console.error('Rating error:', error));
+    }
+
+    // ==================== Comment Forms Toggle ====================
+    function toggleReplyForm(commentId) {
+        const form = document.getElementById('reply-form-' + commentId);
+        if (form) {
+            form.classList.toggle('hidden');
+        }
+    }
+
+    function toggleEditForm(commentId) {
+        const form = document.getElementById('edit-form-' + commentId);
+        const body = document.getElementById('comment-body-' + commentId);
+        if (form) {
+            form.classList.toggle('hidden');
+            if (body) body.classList.toggle('hidden');
+        }
+    }
+
+    function toggleReportForm(commentId) {
+        const form = document.getElementById('report-form-' + commentId);
+        if (form) {
+            form.classList.toggle('hidden');
+        }
+    }
+
+    // ==================== Star Hover Effect ====================
+    const starButtons = document.querySelectorAll('.star-btn');
+    starButtons.forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            const hoverValue = parseInt(this.getAttribute('data-value'));
+            starButtons.forEach(b => {
+                const bVal = parseInt(b.getAttribute('data-value'));
+                const svg = b.querySelector('svg');
+                if (bVal <= hoverValue) {
+                    svg.classList.add('text-amber-400');
+                    svg.classList.remove('text-slate-300');
+                }
+            });
+        });
+    });
+
+    const starContainer = document.getElementById('star-rating-input');
+    if (starContainer) {
+        starContainer.addEventListener('mouseleave', function() {
+            // Reset to current user rating
+            const userRating = {{ $userRating ? $userRating->value : 0 }};
+            starButtons.forEach(btn => {
+                const btnValue = parseInt(btn.getAttribute('data-value'));
+                const svg = btn.querySelector('svg');
+                if (btnValue <= userRating) {
+                    svg.classList.add('text-amber-400');
+                    svg.classList.remove('text-slate-300', 'hover:text-amber-300');
+                } else {
+                    svg.classList.remove('text-amber-400');
+                    svg.classList.add('text-slate-300', 'hover:text-amber-300');
+                }
+            });
+        });
     }
 </script>
 @endpush
